@@ -7,3 +7,8 @@ MTCNN_Train Scripts with PyTorch 0.4.0
 
 ## Introduction
 
+
+
+## Questions remains unsolved
+1. what's the meaning of annotation_type in imagedb.py/load_annotations()  
+2. 

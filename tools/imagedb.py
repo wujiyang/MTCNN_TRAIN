@@ -125,6 +125,7 @@ class ImageDB(object):
 
             imdb.append(item)
         self.image_set_index *= 2
+        print 'after flipped images appended to imdb ', len(imdb)
         
         return imdb
         

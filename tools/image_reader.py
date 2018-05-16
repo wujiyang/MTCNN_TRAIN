@@ -10,7 +10,7 @@ import numpy as np
 import cv2
 
 class TrainImageReader:
-    def __init__(self, imdb, im_size, batch_size=128, shuffle=False):
+    def __init__(self, imdb, im_size, batch_size=256, shuffle=False):
 
         self.imdb = imdb
         self.batch_size = batch_size
@@ -36,7 +36,8 @@ class TrainImageReader:
             np.random.shuffle(self.index)
 
     def iter_next(self):
-        return self.cur + self.batch_size <= self.size
+        #return self.cur + self.batch_size <= self.size #   can't load the last epoch in the condition
+        return self.cur < self.size
 
     def __iter__(self):
         return self
@@ -47,7 +48,7 @@ class TrainImageReader:
     def next(self):
         if self.iter_next():
             self.get_batch()
-            self.cur += self.batch_size
+            self.cur = min(self.cur + self.batch_size, self.size)
             return self.data, self.label
         else:
             raise StopIteration

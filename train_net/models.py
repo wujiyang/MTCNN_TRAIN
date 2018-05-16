@@ -10,10 +10,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-def weight_init(m):
+def weights_init(m):
     if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-        nn.init.xavier_uniform(m.weight.data)
-        nn.init.constant(m.bias, 0.1)
+        nn.init.xavier_uniform_(m.weight.data)
+        nn.init.constant_(m.bias, 0.1)
         
         
 class LossFn:
@@ -27,13 +27,13 @@ class LossFn:
         self.loss_landmark = nn.MSELoss()
         
     def cls_loss(self, gt_label, pred_label):
-        gt_label = torch.squeeze(gt_label)
         pred_label = torch.squeeze(pred_label)
+        gt_label = torch.squeeze(gt_label)
         # only use negative samples and positive samples for classification which labels 0 and 1
         mask = torch.ge(gt_label, 0)
         valid_gt_label = torch.masked_select(gt_label, mask)
         valid_pred_label = torch.masked_select(pred_label, mask)
-        return self.loss_cls(valid_gt_label, valid_pred_label) * self.cls_factor
+        return self.loss_cls(valid_pred_label, valid_gt_label) * self.cls_factor
     
     def box_loss(self, gt_label, gt_offset, pred_offset):
         pred_offset = torch.squeeze(pred_offset)
@@ -46,9 +46,9 @@ class LossFn:
         chose_index = torch.nonzero(mask.data)
         chose_index = torch.squeeze(chose_index)
         #only valid element can effect the loss
-        valid_gt_offset = gt_offset[chose_index,:]
-        valid_pred_offset = pred_offset[chose_index,:]
-        return self.loss_box(valid_pred_offset,valid_gt_offset)*self.box_factor
+        valid_gt_offset = gt_offset[chose_index, :]
+        valid_pred_offset = pred_offset[chose_index, :]
+        return self.loss_box(valid_pred_offset, valid_gt_offset) * self.box_factor
     
     def landmark_loss(self, gt_label, gt_landmark, pred_landmark):
         pred_landmark = torch.squeeze(pred_landmark)
@@ -62,13 +62,13 @@ class LossFn:
 
         valid_gt_landmark = gt_landmark[chose_index, :]
         valid_pred_landmark = pred_landmark[chose_index, :]
-        return self.loss_landmark(valid_pred_landmark, valid_gt_landmark) * self.land_factor
+        return self.loss_landmark(valid_pred_landmark,valid_gt_landmark) * self.land_factor
     
     
 
 class PNet(nn.Module):
     '''PNet'''
-    def __init__(self, is_train=Fasle, use_cuda=True):
+    def __init__(self, is_train=False, use_cuda=True):
         super(PNet, self).__init__()
         self.is_train = is_train
         self.use_cuda = use_cuda
@@ -76,32 +76,31 @@ class PNet(nn.Module):
         # backend
         self.pre_layer = nn.Sequential(
             nn.Conv2d(3, 10, kernel_size=3, stride=1),
-            nn.PReLU(),
+            nn.PReLU(), 
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Conv2d(10, 16, kernel_size=3, stride=1),
-            nn.PReLU(),
+            nn.Conv2d(10, 16, kernel_size=3, stride=1), 
+            nn.PReLU(), 
             nn.Conv2d(16, 32, kernel_size=3, stride=1),
             nn.PReLU()
         )
         
-        # face classification
+        # face classification 
         self.conv4_1 = nn.Conv2d(32, 1, kernel_size=1, stride=1)
-        # bounding box regression
+        # bounding box regresion
         self.conv4_2 = nn.Conv2d(32, 4, kernel_size=1, stride=1)
-        # landmark regression
+        # landmark localization
         self.conv4_3 = nn.Conv2d(32, 10, kernel_size=1, stride=1)
-        
-        # weight initializaation with xavier
-        self.apply(weight_init)
+
+        # weight initiation with xavier
+        self.apply(weights_init)
         
     def forward(self, x):
         x = self.pre_layer(x)
         label = F.sigmoid(self.conv4_1(x))
         offset = self.conv4_2(x)
         # landmark = self.conv4_3(x)
-        
+
         if self.is_train is True:
-            return label, offset
-        
+            return label,offset
         return label, offset
         

@@ -19,7 +19,7 @@ LOG_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + "/MTCNN
 
 USE_CUDA = True
 
-TRAIN_BATCH_SIZE = 512
+TRAIN_BATCH_SIZE = 1024
 
 TRAIN_LR = 0.01
 

@@ -107,3 +107,4 @@ venv.bak/
 # add by wujiyang
 training_data/
 model_store/
+anno_store/

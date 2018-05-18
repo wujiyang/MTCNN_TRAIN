@@ -38,7 +38,7 @@ def compute_accuracy(prob_cls, gt_cls):
     return torch.div(torch.mul(torch.sum(right_ones),float(1.0)),float(size))
 
 
-def train_p_net(annotation_file, model_store_path, end_epoch=16, frequent=200, base_lr=0.01, batch_size=256, use_cuda=True):
+def train_p_net(annotation_file, model_store_path, end_epoch=50, frequent=200, base_lr=0.01, batch_size=256, use_cuda=True):
     
     # initialize the PNet ,loss function and set optimization for this network
     if not os.path.exists(model_store_path):
@@ -87,7 +87,8 @@ def train_p_net(annotation_file, model_store_path, end_epoch=16, frequent=200, b
             optimizer.zero_grad()
             all_loss.backward()
             optimizer.step()
-            
+        
+        # TODO: add validation set for trained model   
         
         if (cur_epoch + 1) % 10 == 0:
             torch.save(net.state_dict(), os.path.join(model_store_path,"pnet_model_epoch_%d.pt" % (cur_epoch + 1)))
@@ -109,7 +110,7 @@ def parse_args():
     parser.add_argument('--end_epoch', dest='end_epoch', help='end epoch of training',
                         default=config.END_EPOCH, type=int)
     parser.add_argument('--frequent', dest='frequent', help='frequency of logging',
-                        default=10, type=int)
+                        default=200, type=int)
     parser.add_argument('--base_lr', dest='base_lr', help='learning rate',
                         default=config.TRAIN_LR, type=float)
     parser.add_argument('--batch_size', dest='batch_size', help='train batch size',

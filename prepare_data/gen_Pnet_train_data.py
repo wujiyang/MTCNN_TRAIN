@@ -51,10 +51,10 @@ def gen_pnet_data(data_dir, anno_file, prefix):
     idx = 0     # pics index
     box_idx = 0 # boxes index
     
-    # for annotation in annotations:
-    for i in range(100):
-        #annotation = annotation.strip().split(' ')
-        annotation = annotations[i].strip().split(' ')
+    for annotation in annotations:
+    # for i in range(100):
+        annotation = annotation.strip().split(' ')
+        # annotation = annotations[i].strip().split(' ')
         im_path = os.path.join(prefix,annotation[0])
         bbox = list(map(float, annotation[1:]))
         boxes = np.array(bbox, dtype=np.int32).reshape(-1, 4)

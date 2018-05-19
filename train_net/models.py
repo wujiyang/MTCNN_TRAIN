@@ -102,5 +102,102 @@ class PNet(nn.Module):
 
         if self.is_train is True:
             return label,offset
+        
         return label, offset
+        
+    
+class RNet(nn.Module):
+    ''' RNet '''
+
+    def __init__(self,is_train=False, use_cuda=True):
+        super(RNet, self).__init__()
+        self.is_train = is_train
+        self.use_cuda = use_cuda
+        # backend
+        self.pre_layer = nn.Sequential(
+            nn.Conv2d(3, 28, kernel_size=3, stride=1),
+            nn.PReLU(),
+            nn.MaxPool2d(kernel_size=3, stride=2), 
+            nn.Conv2d(28, 48, kernel_size=3, stride=1), 
+            nn.PReLU(), 
+            nn.MaxPool2d(kernel_size=3, stride=2), 
+            nn.Conv2d(48, 64, kernel_size=2, stride=1), 
+            nn.PReLU()  
+
+        )
+        # this is little different from MTCNN paper, cause in pytroch, pooliing is calculated by floor()
+        self.conv4 = nn.Linear(64*2*2, 128)  
+        self.prelu4 = nn.PReLU() 
+        # face calssification
+        self.conv5_1 = nn.Linear(128, 1)
+        # bounding box regression
+        self.conv5_2 = nn.Linear(128, 4)
+        # lanbmark localization
+        self.conv5_3 = nn.Linear(128, 10)
+        # weight initiation weih xavier
+        self.apply(weights_init)
+
+    def forward(self, x):
+        # backend
+        x = self.pre_layer(x)
+        x = x.view(-1, x.size(0))
+        x = self.conv4(x)
+        x = self.prelu4(x)
+        # detection
+        det = torch.sigmoid(self.conv5_1(x))
+        box = self.conv5_2(x)
+
+        if self.is_train is True:
+            return det, box
+        
+        return det, box
+    
+
+class ONet(nn.Module):
+    ''' ONet '''
+    def __init__(self, is_train=False, use_cuda=True):
+        super(ONet, self).__init__()
+        self.is_train = is_train
+        self.use_cuda = use_cuda
+        # backend
+        self.pre_layer = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, stride=1),
+            nn.PReLU(), 
+            nn.MaxPool2d(kernel_size=3, stride=2), 
+            nn.Conv2d(32, 64, kernel_size=3, stride=1),
+            nn.PReLU(), 
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1), 
+            nn.PReLU(),
+            nn.MaxPool2d(kernel_size=2,stride=2), 
+            nn.Conv2d(64,128,kernel_size=2,stride=1), 
+            nn.PReLU() 
+        )
+        self.conv5 = nn.Linear(128*2*2, 256) 
+        self.prelu5 = nn.PReLU() 
+        # face classification
+        self.conv6_1 = nn.Linear(256, 1)
+        # bounding box regression
+        self.conv6_2 = nn.Linear(256, 4)
+        # lanbmark localization
+        self.conv6_3 = nn.Linear(256, 10)
+        # weight initiation weih xavier
+        self.apply(weights_init)
+
+    def forward(self, x):
+        # backend
+        x = self.pre_layer(x)
+        x = x.view(-1, x.size(0))
+        x = self.conv5(x)
+        x = self.prelu5(x)
+        # detection
+        det = torch.sigmoid(self.conv6_1(x))
+        box = self.conv6_2(x)
+        landmark = self.conv6_3(x)
+        if self.is_train is True:
+            return det, box, landmark
+        
+        return det, box, landmark
+    
+        
         

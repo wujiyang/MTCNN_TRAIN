@@ -219,6 +219,98 @@ class MtcnnDetector(object):
         boxes_align: numpy array
             boxes after calibration
         """
+        h, w, c = im.shape
+        net_size = 12
+        current_scale = float(net_size) / self.min_face_size    # find initial scale
+        im_resized = self.resize_image(im, current_scale)
+        current_height, current_width, _ = im_resized.shape
+        
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        
+        # fcn for pnet
+        all_boxes = list()
+        while min(current_height, current_width) > net_size:
+            feed_imgs = []
+            image_tensor = image_tools.convert_image_to_tensor(im_resized)
+            feed_imgs.append(image_tensor)
+            feed_imgs = torch.stack(feed_imgs)
+            
+            if self.pnet_detector.use_cuda:
+                feed_imgs = feed_imgs.to(device)
+                
+            cls_map, reg = self.pnet_detector(feed_imgs)
+            cls_map_np = image_tools.convert_chwTensor_to_hwcNumpy(cls_map.cpu())
+            reg_np = image_tools.convert_chwTensor_to_hwcNumpy(reg.cpu())
+            
+            boxes = self.generate_bounding_box(cls_map_np[ 0, :, :], reg_np, current_scale, self.thresh[0])
+
+            current_scale *= self.scale_factor
+            im_resized = self.resize_image(im, current_scale)
+            current_height, current_width, _ = im_resized.shape
+
+            if boxes.size == 0:
+                continue
+            keep = utils.nms(boxes[:, :5], 0.5, 'Union')
+            boxes = boxes[keep]
+            all_boxes.append(boxes)
+            
+        if len(all_boxes) == 0:
+            return None, None
+        
+        all_boxes = np.vstack(all_boxes)
+
+        # merge the detection from first stage
+        keep = utils.nms(all_boxes[:, 0:5], 0.7, 'Union')
+        all_boxes = all_boxes[keep]
+
+        bw = all_boxes[:, 2] - all_boxes[:, 0]
+        bh = all_boxes[:, 3] - all_boxes[:, 1]
+            
+        boxes = np.vstack([all_boxes[:,0],
+                   all_boxes[:,1],
+                   all_boxes[:,2],
+                   all_boxes[:,3],
+                   all_boxes[:,4]
+                  ])
+
+        boxes = boxes.T
+
+        align_topx = all_boxes[:, 0] + all_boxes[:, 5] * bw
+        align_topy = all_boxes[:, 1] + all_boxes[:, 6] * bh
+        align_bottomx = all_boxes[:, 2] + all_boxes[:, 7] * bw
+        align_bottomy = all_boxes[:, 3] + all_boxes[:, 8] * bh
+
+        # refine the boxes
+        boxes_align = np.vstack([align_topx,
+                              align_topy,
+                              align_bottomx,
+                              align_bottomy,
+                              all_boxes[:, 4]
+                              ])
+        boxes_align = boxes_align.T
+
+        return boxes, boxes_align
+    
+    
+    def detect_rnet(self, im, dets):
+        """Get face candidates using rnet
+
+        Parameters:
+        ----------
+        im: numpy array
+            input image array
+        dets: numpy array
+            detection results of pnet
+
+        Returns:
+        -------
+        boxes: numpy array
+            detected boxes before calibration
+        boxes_align: numpy array
+            boxes after calibration
+        """
+        pass
+        
         
     
 

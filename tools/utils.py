@@ -51,7 +51,7 @@ def convert_to_square(bbox):
         square box
     '''
     
-    square_bbox = box.copy()
+    square_bbox = bbox.copy()
     h = bbox[:, 3] - bbox[:, 1]
     w = bbox[:, 2] - bbox[:, 0]
     max_side = np.maximum(h, w)

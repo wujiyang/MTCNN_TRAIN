@@ -6,7 +6,7 @@ Created on Tue May 15 09:35:11 2018
 @author: wujiyang
 """
 import sys
-sys.path.append("/home/wujiyang/MTCNN_TRAIN")
+sys.path.append("/home/wujiyang/FaceProjects/MTCNN_TRAIN")
 
 import argparse
 import numpy as np

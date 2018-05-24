@@ -7,7 +7,7 @@ Created on Tue May 15 15:52:24 2018
 """
 
 import sys
-sys.path.append("/home/wujiyang/MTCNN_TRAIN")
+sys.path.append("/home/wujiyang/FaceProjects/MTCNN_TRAIN")
 
 import os
 

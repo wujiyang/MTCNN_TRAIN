@@ -82,7 +82,7 @@ def nms(dets, thresh, mode='Union'):
     order = scores.argsort()[::-1] # the index of scores by desc
     
     keep = []
-    while order.size() > 0:
+    while order.size > 0:
         i = order[0]
         keep.append(i)
         xx1 = np.maximum(x1[i], x1[order[1:]])

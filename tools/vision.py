@@ -5,13 +5,11 @@ Created on Sat May 19 15:14:18 2018
 
 @author: wujiyang
 """
-
-import random
 import matplotlib.pyplot as plt
 
 def vis_two(im_array, dest1, dest2, thresh=0.9):
-     """Visualize detection results before and after calibration
-
+    """Visualize detection results before and after calibration
+    
     Parameters:
     ----------
     im_array: numpy.ndarray, shape(1, c, h, w)
@@ -26,6 +24,7 @@ def vis_two(im_array, dest1, dest2, thresh=0.9):
     Returns:
     -------
     """
+
     figure = plt.figure()
     plt.subplot(121)
     plt.imshow(im_array)
@@ -41,7 +40,7 @@ def vis_two(im_array, dest1, dest2, thresh=0.9):
             plt.gca().add_patch(rect) # get current Axes and do some modification on it
             landmarks = landmarks.reshape((5, 2))
             for j in range(5):
-                plt.scatter(landmarks[j, 0], landmarks[j, 1], c='yellow', linewidth=0,1, marker='x', s = 5)
+                plt.scatter(landmarks[j, 0], landmarks[j, 1], c='yellow', linewidth=1, marker='x', s = 20)
                 
     plt.subplot(122)
     plt.imshow(im_array)
@@ -58,7 +57,7 @@ def vis_two(im_array, dest1, dest2, thresh=0.9):
 
             landmarks = landmarks.reshape((5, 2))
             for j in range(5):
-                plt.scatter(landmarks[j, 0], landmarks[j, 1], c='yellow',linewidths=0.1, marker='x', s=5)
+                plt.scatter(landmarks[j, 0], landmarks[j, 1], c='yellow', linewidths=1, marker='x', s=20)
     
     plt.show()
     

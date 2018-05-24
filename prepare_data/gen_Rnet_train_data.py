@@ -25,7 +25,7 @@ import tools.vision as vision
 
 def gen_rnet_data(data_dir, anno_file, pnet_model_file, prefix_path='', use_cuda=True, vis=False):
     # load the pnet and pnet_detector
-    '''
+    
     pnet, _, _ = create_mtcnn_net(p_model_path=pnet_model_file, use_cuda=use_cuda)
     mtcnn_detector = MtcnnDetector(pnet=pnet, min_face_size=12)
     
@@ -63,9 +63,9 @@ def gen_rnet_data(data_dir, anno_file, pnet_model_file, prefix_path='', use_cuda
     
     with open(save_file, 'wb') as f:
         cPickle.dump(all_boxes, f, cPickle.HIGHEST_PROTOCOL)
-    '''
     
-    save_file = '/home/wujiyang/FaceProjects/MTCNN_TRAIN/model_store/detections_1527162101.pkl'
+    
+    #save_file = '/home/wujiyang/FaceProjects/MTCNN_TRAIN/model_store/detections_1527162101.pkl'
     get_rnet_sample_data(data_dir, anno_file, save_file, prefix_path)
     
 def get_rnet_sample_data(data_dir, anno_file, det_boxes_file, prefix_path):
@@ -196,7 +196,7 @@ def parse_args():
     parser.add_argument('--anno_file', dest='annotation_file', help='wider face original annotation file',
                         default=os.path.join(config.ANNO_STORE_DIR,"wider_origin_anno.txt"), type=str)
     parser.add_argument('--pmodel_file', dest='pnet_model_file', help='PNet model file path',
-                        default='/home/wujiyang/FaceProjects/MTCNN_TRAIN/model_store/pnet_nodel_final.pt', type=str)
+                        default='/home/wujiyang/FaceProjects/MTCNN_TRAIN/model_store/pnet_model_final.pt', type=str)
     parser.add_argument('--gpu', dest='use_cuda', help='with gpu',
                         default=config.USE_CUDA, type=bool)
     parser.add_argument('--prefix_path', dest='prefix_path', help='annotation file image prefix root path',

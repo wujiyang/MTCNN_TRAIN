@@ -15,6 +15,23 @@ def weights_init(m):
         nn.init.xavier_uniform_(m.weight.data)
         nn.init.constant_(m.bias, 0.1)
         
+
+def compute_accuracy(prob_cls, gt_cls):
+    '''return a tensor which contains predicted accuracy'''
+    prob_cls = torch.squeeze(prob_cls)
+    gt_cls = torch.squeeze(gt_cls)
+    
+    # only positive and negative examples has the classification loss which labels 1 and 0
+    mask = torch.ge(gt_cls, 0)
+    valid_gt_cls = torch.masked_select(gt_cls,mask)
+    valid_prob_cls = torch.masked_select(prob_cls,mask)
+    # computer predicted accuracy
+    size = min(valid_gt_cls.size()[0], valid_prob_cls.size()[0])
+    prob_ones = torch.ge(valid_prob_cls,0.6).float()
+    right_ones = torch.eq(prob_ones,valid_gt_cls).float()
+
+    return torch.div(torch.mul(torch.sum(right_ones),float(1.0)),float(size))
+
         
 class LossFn:
     def __init__(self, cls_factor=1, box_factor=1, landmark_factor=1):

@@ -7,7 +7,7 @@ Created on Tue May 15 18:48:03 2018
 """
 
 import sys
-sys.path.append("/home/wujiyang/MTCNN_TRAIN")
+sys.path.append("/home/wujiyang/FaceProjects/MTCNN_TRAIN")
 
 import os
 import argparse
@@ -16,26 +16,9 @@ import torch
 import config
 from tools.image_reader import TrainImageReader
 from train_net.models import PNet, LossFn
+from train_net.models import compute_accuracy
 import tools.image_tools as image_tools
 from tools.imagedb import ImageDB
-
-
-
-def compute_accuracy(prob_cls, gt_cls):
-    '''return a tensor which contains predicted accuracy'''
-    prob_cls = torch.squeeze(prob_cls)
-    gt_cls = torch.squeeze(gt_cls)
-    
-    # only positive and negative examples has the classification loss which labels 1 and 0
-    mask = torch.ge(gt_cls, 0)
-    valid_gt_cls = torch.masked_select(gt_cls,mask)
-    valid_prob_cls = torch.masked_select(prob_cls,mask)
-    # computer predicted accuracy
-    size = min(valid_gt_cls.size()[0], valid_prob_cls.size()[0])
-    prob_ones = torch.ge(valid_prob_cls,0.6).float()
-    right_ones = torch.eq(prob_ones,valid_gt_cls).float()
-
-    return torch.div(torch.mul(torch.sum(right_ones),float(1.0)),float(size))
 
 
 def train_p_net(annotation_file, model_store_path, end_epoch=50, frequent=200, base_lr=0.01, batch_size=256, use_cuda=True):

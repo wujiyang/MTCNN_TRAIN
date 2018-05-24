@@ -41,6 +41,6 @@ def convert_chwTensor_to_hwcNumpy(tensor):
             """
 
     if isinstance(tensor, torch.FloatTensor):
-        return np.transpose(tensor.numpy(), (0,2,3,1))
+        return np.transpose(tensor.detach().numpy(), (0,2,3,1))
     else:
         raise Exception("covert b*c*h*w tensor to b*h*w*c numpy error.This tensor must have 4 dimension of float data type.")

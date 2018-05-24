@@ -7,7 +7,7 @@ Created on Sat May 19 20:55:10 2018
 """
 
 import sys
-sys.path.append("/home/wujiyang/MTCNN_TRAIN")
+sys.path.append("/home/wujiyang/FaceProjects/MTCNN_TRAIN")
 
 import cv2
 import time

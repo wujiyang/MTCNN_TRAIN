@@ -25,6 +25,7 @@ def train_r_net(annotation_file, model_store_path, end_epoch=50, frequent=200, b
     # initialize the PNet ,loss function and set optimization for this network
     if not os.path.exists(model_store_path):
         os.makedirs(model_store_path)
+        
     net = RNet(is_train=True, use_cuda=use_cuda)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if use_cuda:

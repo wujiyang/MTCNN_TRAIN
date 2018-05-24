@@ -157,7 +157,8 @@ class RNet(nn.Module):
     def forward(self, x):
         # backend
         x = self.pre_layer(x)
-        x = x.view(-1, x.size(0))
+        #x = x.view(-1, x.size(0))
+        x = x.view(-1, 64 * 2 * 2)
         x = self.conv4(x)
         x = self.prelu4(x)
         # detection
@@ -204,7 +205,7 @@ class ONet(nn.Module):
     def forward(self, x):
         # backend
         x = self.pre_layer(x)
-        x = x.view(-1, x.size(0))
+        x = x.view(-1, 128*2*2)
         x = self.conv5(x)
         x = self.prelu5(x)
         # detection

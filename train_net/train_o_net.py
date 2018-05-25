@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 24 19:27:03 2018
+Created on Fri May 25 21:29:56 2018
 
 @author: wujiyang
 """
+
 import sys
 sys.path.append("/home/wujiyang/FaceProjects/MTCNN_TRAIN")
 
@@ -14,19 +15,18 @@ import datetime
 import torch
 import config
 from tools.image_reader import TrainImageReader
-from train_net.models import RNet, LossFn
+from train_net.models import ONet, LossFn
 from train_net.models import compute_accuracy
 import tools.image_tools as image_tools
 from tools.imagedb import ImageDB
 
-
-def train_r_net(annotation_file, model_store_path, end_epoch=50, frequent=200, base_lr=0.01, batch_size=256, use_cuda=True):
+def train_o_net(annotation_file, model_store_path, end_epoch=50, frequent=200, base_lr=0.01, batch_size=256, use_cuda=True):
     
-    # initialize the RNet ,loss function and set optimization for this network
+    # initialize the ONet ,loss function and set optimization for this network
     if not os.path.exists(model_store_path):
         os.makedirs(model_store_path)
         
-    net = RNet(is_train=True, use_cuda=use_cuda)
+    net = ONet(is_train=True, use_cuda=use_cuda)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if use_cuda:
         net.to(device)
@@ -37,8 +37,8 @@ def train_r_net(annotation_file, model_store_path, end_epoch=50, frequent=200, b
     imagedb = ImageDB(annotation_file)
     gt_imdb = imagedb.load_imdb()
     gt_imdb = imagedb.append_flipped_images(gt_imdb)
-    train_data = TrainImageReader(gt_imdb, 24, batch_size, shuffle=True)
-    
+    train_data = TrainImageReader(gt_imdb, 48, batch_size, shuffle=True)
+
     # train net 
     net.train()
     for cur_epoch in range(end_epoch):
@@ -50,22 +50,24 @@ def train_r_net(annotation_file, model_store_path, end_epoch=50, frequent=200, b
             
             gt_label = torch.from_numpy(gt_label).float()
             gt_bbox = torch.from_numpy(gt_bbox).float()
-            # gt_landmark = torch.from_numpy(gt_landmark).float()
+            gt_landmark = torch.from_numpy(gt_landmark).float()
             if use_cuda:
                 im_tensor = im_tensor.to(device)
                 gt_label = gt_label.to(device)
                 gt_bbox = gt_bbox.to(device)
+                gt_landmark = gt_landmark.to(device)
             
-            cls_pred, box_offset_pred = net(im_tensor)
+            cls_pred, box_offset_pred, landmark_offset_pred = net(im_tensor)
             cls_loss = lossfn.cls_loss(gt_label, cls_pred)
             box_offset_loss = lossfn.box_loss(gt_label, gt_bbox, box_offset_pred)
-            all_loss = cls_loss * 1.0 + box_offset_loss * 0.5
+            landmark_loss = lossfn.landmark_loss(gt_label, gt_landmark, landmark_offset_pred)
+            all_loss = cls_loss * 0.8 + box_offset_loss * 0.6 + landmark_loss * 1.5
             
             if batch_idx % frequent == 0:
                 accuracy = compute_accuracy(cls_pred, gt_label)
-                print("[%s, Epoch: %d, Step: %d] accuracy: %.6f, all_loss: %.6f, cls_loss: %.6f, bbox_reg_loss: %.6f, lr: %.6f" % 
+                print("[%s, Epoch: %d, Step: %d] accuracy: %.6f, all_loss: %.6f, cls_loss: %.6f, bbox_reg_loss: %.6f, landmark_loss: %.6f, lr: %.6f" % 
                       (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), cur_epoch + 1, batch_idx, accuracy.data.tolist(), 
-                       all_loss.data.tolist(), cls_loss.data.tolist(), box_offset_loss.data.tolist(), scheduler.get_lr()[0]))
+                       all_loss.data.tolist(), cls_loss.data.tolist(), box_offset_loss.data.tolist(), landmark_loss.data.tolist(), scheduler.get_lr()[0]))
             
             optimizer.zero_grad()
             all_loss.backward()
@@ -74,20 +76,19 @@ def train_r_net(annotation_file, model_store_path, end_epoch=50, frequent=200, b
         # TODO: add validation set for trained model   
         
         if (cur_epoch + 1) % 10 == 0:
-            torch.save(net.state_dict(), os.path.join(model_store_path,"rnet_model_epoch_%d.pt" % (cur_epoch + 1)))
+            torch.save(net.state_dict(), os.path.join(model_store_path,"onet_model_epoch_%d.pt" % (cur_epoch + 1)))
 
-    torch.save(net.state_dict(), os.path.join(model_store_path, 'rnet_model_final.pt'))
-
-
-
-
+    torch.save(net.state_dict(), os.path.join(model_store_path, 'onet_model_final.pt'))
+    
+    
+    
 def parse_args():
     parser = argparse.ArgumentParser(description='Train RNet',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 
-    parser.add_argument('--anno_file', dest='annotation_file',help='training data annotation file', 
-                        default=os.path.join(config.ANNO_STORE_DIR,config.RNET_TRAIN_IMGLIST_FILENAME), type=str)
+    parser.add_argument('--anno_file', dest='annotation_file', help='training data annotation file',
+                        default=os.path.join(config.ANNO_STORE_DIR,config.ONET_TRAIN_IMGLIST_FILENAME), type=str)
     parser.add_argument('--model_path', dest='model_store_path', help='training model store directory',
                         default=config.MODLE_STORE_DIR, type=str)
     parser.add_argument('--end_epoch', dest='end_epoch', help='end epoch of training',
@@ -109,5 +110,5 @@ if __name__ == '__main__':
     # print('train Pnet argument:')
     # print(args)
 
-    train_r_net(annotation_file=args.annotation_file, model_store_path=args.model_store_path,
+    train_o_net(annotation_file=args.annotation_file, model_store_path=args.model_store_path,
                 end_epoch=args.end_epoch, frequent=args.frequent, base_lr=args.base_lr, batch_size=args.batch_size, use_cuda=args.use_cuda)

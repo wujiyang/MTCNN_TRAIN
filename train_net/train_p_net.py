@@ -86,8 +86,8 @@ def parse_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 
-    parser.add_argument('--anno_file', dest='annotation_file',
-                        default=os.path.join(config.ANNO_STORE_DIR,config.PNET_TRAIN_IMGLIST_FILENAME), help='training data annotation file', type=str)
+    parser.add_argument('--anno_file', dest='annotation_file', help='training data annotation file', 
+                        default=os.path.join(config.ANNO_STORE_DIR,config.PNET_TRAIN_IMGLIST_FILENAME), type=str)
     parser.add_argument('--model_path', dest='model_store_path', help='training model store directory',
                         default=config.MODLE_STORE_DIR, type=str)
     parser.add_argument('--end_epoch', dest='end_epoch', help='end epoch of training',

@@ -110,4 +110,4 @@ model_store/
 anno_store/*
 !anno_store/landmark_imagelist.txt
 !anno_store/wider_origin_anno.txt
-!anno_store/readme.txt
+!anno_store/readme.md

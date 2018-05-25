@@ -165,7 +165,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Test mtcnn',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--face_traindata_store', dest='traindata_store', help='face train data temporary folder', 
+    parser.add_argument('--face_traindata_store', dest='traindata_store', help='face train data temporary folder',
                         default=config.TRAIN_DATA_DIR, type=str)
     parser.add_argument('--anno_file', dest='annotation_file', help='wider face original annotation file',
                         default=os.path.join(config.ANNO_STORE_DIR,"wider_origin_anno.txt"), type=str)

@@ -108,3 +108,6 @@ venv.bak/
 training_data/
 model_store/
 anno_store/*
+!anno_store/landmark_imagelist.txt
+!anno_store/wider_origin_anno.txt
+!anno_store/readme.txt

@@ -105,8 +105,11 @@ venv.bak/
 
 
 # add by wujiyang
-training_data/
-model_store/
+training_data/*
+!training_data/readme.md
+model_store/*
+!model_store/pnet_model_final.pt
+!model_store/rnet_model_final.pt
 anno_store/*
 !anno_store/landmark_imagelist.txt
 !anno_store/wider_origin_anno.txt

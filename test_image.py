@@ -23,7 +23,7 @@ if __name__ == '__main__':
     
     mtcnn_detector = MtcnnDetector(pnet=pnet, rnet=rnet, onet=onet, min_face_size=24)
 
-    img = cv2.imread("./test.jpg")
+    img = cv2.imread("./test2.jpg")
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     bboxs, landmarks = mtcnn_detector.detect_face(img)

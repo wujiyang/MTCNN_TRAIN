@@ -6,6 +6,7 @@ Created on Sat May 19 15:14:18 2018
 @author: wujiyang
 """
 import matplotlib.pyplot as plt
+import pylab
 
 def vis_two(im_array, dest1, dest2, thresh=0.9):
     """Visualize detection results before and after calibration
@@ -28,6 +29,7 @@ def vis_two(im_array, dest1, dest2, thresh=0.9):
     figure = plt.figure()
     plt.subplot(121)
     plt.imshow(im_array)
+    figure.suptitle('Face Detector', fontsize=12, color='r')
     for i in range(dest1.shape[0]):
         bbox = dest1[i, 0:4]
         score = dest1[i, 4]
@@ -78,8 +80,8 @@ def vis_face(im_array, dets, landmarks=None):
     -------
     """
     figure = plt.figure()
-    plt.show(im_array)
-    plt.set_title('Face Detector', fontsize=12, color='r')
+    plt.imshow(im_array)
+    figure.suptitle('Face Detector', fontsize=12, color='r')
     
     for i in range(dets.shape[0]):
         bbox = dets[i, 0:4]
@@ -94,7 +96,7 @@ def vis_face(im_array, dets, landmarks=None):
             landmarks_one = landmarks[i, :]
             landmarks_one = landmarks_one.reshape((5, 2))
             for j in range(5):
-                plt.scatter(landmarks[j, 0], landmarks[j, 1], c='red',linewidths=0.1, marker='x', s=5)
+                plt.scatter(landmarks_one[j, 0], landmarks_one[j, 1], c='red',linewidths=1, marker='x', s=5)
     
     plt.show()
        

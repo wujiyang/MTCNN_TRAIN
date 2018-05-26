@@ -80,7 +80,7 @@ class MtcnnDetector(object):
                 
          return im
     
-    def square_box(self, bbox):
+    def square_bbox(self, bbox):
         '''
         convert bbox to square
         Parameters:
@@ -89,14 +89,15 @@ class MtcnnDetector(object):
             square bbox
         '''
         square_bbox = bbox.copy()
-        h = bbox[:, 3] - bbox[:, 1]
-        w = bbox[:, 2] - bbox[:, 0]
-        max_side = np.maximum(h, w)
-        square_bbox[:, 0] = bbox[:, 0] + w*0.5 - max_side*0.5
-        square_bbox[:, 1] = bbox[:, 1] + h*0.5 - max_side*0.5
-        square_bbox[:, 2] = square_bbox[:, 0] + max_side
-        square_bbox[:, 3] = square_bbox[:, 1] + max_side
-    
+
+        h = bbox[:, 3] - bbox[:, 1] + 1
+        w = bbox[:, 2] - bbox[:, 0] + 1
+        l = np.maximum(h,w)
+        square_bbox[:, 0] = bbox[:, 0] + w*0.5 - l*0.5
+        square_bbox[:, 1] = bbox[:, 1] + h*0.5 - l*0.5
+
+        square_bbox[:, 2] = square_bbox[:, 0] + l - 1
+        square_bbox[:, 3] = square_bbox[:, 1] + l - 1
         return square_bbox
     
     
@@ -173,23 +174,23 @@ class MtcnnDetector(object):
             tmph, tmpw: numpy array, n x 1, height and width of the bbox
         """
         
-        tmpw = (bboxes[:, 2] - bboxes[:, 0]).astype(np.int32)
-        tmph = (bboxes[:, 3] - bboxes[:, 1]).astype(np.int32)
+        tmpw = (bboxes[:, 2] - bboxes[:, 0] + 1).astype(np.int32)
+        tmph = (bboxes[:, 3] - bboxes[:, 1] + 1).astype(np.int32)
         numbox = bboxes.shape[0]
 
         dx = np.zeros((numbox, ))
         dy = np.zeros((numbox, ))
-        edx, edy  = tmpw.copy(), tmph.copy()
-        
-        x, y, ex, ey = bboxes[:, 0], bboxes[:, 1], bboxes[:, 2], bboxes[:, 3]
-        
-        tmp_index = np.where(ex > w)
-        edx[tmp_index] = tmpw[tmp_index] + w - 1 - ex[tmp_index]
-        ex[tmp_index] = w
+        edx, edy  = tmpw.copy()-1, tmph.copy()-1
 
-        tmp_index = np.where(ey > h)
-        edy[tmp_index] = tmph[tmp_index] + h - 1 - ey[tmp_index]
-        ey[tmp_index] = h
+        x, y, ex, ey = bboxes[:, 0], bboxes[:, 1], bboxes[:, 2], bboxes[:, 3]
+
+        tmp_index = np.where(ex > w-1)
+        edx[tmp_index] = tmpw[tmp_index] + w - 2 - ex[tmp_index]
+        ex[tmp_index] = w - 1
+
+        tmp_index = np.where(ey > h-1)
+        edy[tmp_index] = tmph[tmp_index] + h - 2 - ey[tmp_index]
+        ey[tmp_index] = h - 1
 
         tmp_index = np.where(x < 0)
         dx[tmp_index] = 0 - x[tmp_index]
@@ -263,8 +264,8 @@ class MtcnnDetector(object):
         keep = utils.nms(all_boxes[:, 0:5], 0.7, 'Union')
         all_boxes = all_boxes[keep]
 
-        bw = all_boxes[:, 2] - all_boxes[:, 0]
-        bh = all_boxes[:, 3] - all_boxes[:, 1]
+        bw = all_boxes[:, 2] - all_boxes[:, 0] + 1
+        bh = all_boxes[:, 3] - all_boxes[:, 1] + 1
             
         boxes = np.vstack([all_boxes[:,0],
                    all_boxes[:,1],
@@ -321,12 +322,16 @@ class MtcnnDetector(object):
         
         cropped_ims_tensors = []
         for i in range(num_boxes):
-            tmp = np.zeros((tmph[i], tmpw[i], 3), dtype=np.uint8)
-            tmp[dy[i]:edy[i]+1, dx[i]:edx[i]+1, :] = im[y[i]:ey[i]+1, x[i]:ex[i]+1, :]
-            crop_im = cv2.resize(tmp, (24, 24))
-            crop_im_tensor = image_tools.convert_image_to_tensor(crop_im)
-            # cropped_ims_tensors[i, :, :, :] = crop_im_tensor
-            cropped_ims_tensors.append(crop_im_tensor)
+            try:
+                if tmph[i] > 0 and tmpw[i] > 0:
+                    tmp = np.zeros((tmph[i], tmpw[i], 3), dtype=np.uint8)
+                    tmp[dy[i]:edy[i] + 1, dx[i]:edx[i] + 1, :] = im[y[i]:ey[i] + 1, x[i]:ex[i] + 1, :]
+                    crop_im = cv2.resize(tmp, (24, 24))
+                    crop_im_tensor = image_tools.convert_image_to_tensor(crop_im)
+                    # cropped_ims_tensors[i, :, :, :] = crop_im_tensor
+                    cropped_ims_tensors.append(crop_im_tensor)
+            except ValueError, e:
+                print e.message
             
         feed_imgs = torch.stack(cropped_ims_tensors)
         
@@ -409,13 +414,17 @@ class MtcnnDetector(object):
         
         cropped_ims_tensors = []
         for i in range(num_boxes):
-            tmp = np.zeros((tmph[i], tmpw[i], 3), dtype=np.uint8)
-            tmp[dy[i]:edy[i] + 1, dx[i]:edx[i] + 1, :] = im[y[i]:ey[i] + 1, x[i]:ex[i] + 1, :]
-            crop_im = cv2.resize(tmp, (48, 48))
-            crop_im_tensor = image_tools.convert_image_to_tensor(crop_im)
-            # cropped_ims_tensors[i, :, :, :] = crop_im_tensor
-            cropped_ims_tensors.append(crop_im_tensor)
-            
+            try:
+                if tmph[i] > 0 and tmpw[i] > 0:
+                    tmp = np.zeros((tmph[i], tmpw[i], 3), dtype=np.uint8)
+                    tmp[dy[i]:edy[i] + 1, dx[i]:edx[i] + 1, :] = im[y[i]:ey[i] + 1, x[i]:ex[i] + 1, :]
+                    crop_im = cv2.resize(tmp, (48, 48))
+                    crop_im_tensor = image_tools.convert_image_to_tensor(crop_im)
+                    # cropped_ims_tensors[i, :, :, :] = crop_im_tensor
+                    cropped_ims_tensors.append(crop_im_tensor)
+            except ValueError, e:
+                print e.message
+                
         feed_imgs = torch.stack(cropped_ims_tensors)
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -529,71 +538,3 @@ class MtcnnDetector(object):
         return boxes_align, landmark_align
     
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

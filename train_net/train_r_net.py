@@ -106,7 +106,7 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    # print('train Pnet argument:')
+    # print('train Rnet argument:')
     # print(args)
 
     train_r_net(annotation_file=args.annotation_file, model_store_path=args.model_store_path,

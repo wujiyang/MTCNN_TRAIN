@@ -83,7 +83,7 @@ def train_o_net(annotation_file, model_store_path, end_epoch=50, frequent=200, b
     
     
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train RNet',
+    parser = argparse.ArgumentParser(description='Train ONet',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 
@@ -107,7 +107,7 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    # print('train Pnet argument:')
+    # print('train Onet argument:')
     # print(args)
 
     train_o_net(annotation_file=args.annotation_file, model_store_path=args.model_store_path,

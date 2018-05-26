@@ -65,7 +65,8 @@ def gen_onet_data(data_dir, anno_file, pnet_model_file, rnet_model_file, prefix_
     with open(save_file, 'wb') as f:
         cPickle.dump(all_boxes, f, cPickle.HIGHEST_PROTOCOL)
     
-    #save_file = '/home/wujiyang/FaceProjects/MTCNN_TRAIN/model_store/pnet_detections_1527162101.pkl'
+    
+    #save_file = '/home/wujiyang/FaceProjects/MTCNN_TRAIN/model_store/rnet_detections_1527304558.pkl'
     get_onet_sample_data(data_dir, anno_file, save_file, prefix_path)
     
     
@@ -194,7 +195,7 @@ def parse_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--face_traindata_store', dest='traindata_store', help='face train data temporary folder',
-                        default='../data/wider/', type=str)
+                        default=config.TRAIN_DATA_DIR, type=str)
     parser.add_argument('--anno_file', dest='annotation_file', help='wider face original annotation file',
                         default=os.path.join(config.ANNO_STORE_DIR,"wider_origin_anno.txt"), type=str)
     parser.add_argument('--pmodel_file', dest='pnet_model_file', help='PNet model file path',

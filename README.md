@@ -12,7 +12,7 @@ MTCNN_Train Scripts with PyTorch 0.4.0
 
 This project is a reimplementation version of mtcnn face detection, most of the source code is from [kuaikuaikim/DFace](https://github.com/kuaikuaikim/DFace), I restructed the source code with Pytorch 0.4.0 and made some modifications and optimizations. All the contributions I have made is listed below.
 
-## The Optimizations 
+## The Contributions
 1. restruct the source code with PyTorch 0.4.0.
 2. avoid some unnecessary image data copy operation in training data preparation, for example, ./prepare_data/gen_Pnet_data.py and so on.
 3. remove some meaningless operation in traing process, and format the output information during training.
@@ -39,10 +39,10 @@ python train_net/train_r_net.py
 3. Train ONet   
 ``` python
 cd MTCNN_TRAIN
-python prepare_data/gen_Rnet_train_data.py
 python prepare_data/gen_landmark_48.py
-python prepare_data/assemble_rnet_imglist.py 
-python train_net/train_r_net.py
+python prepare_data/gen_Onet_train_data.py
+python prepare_data/assemble_onet_imglist.py 
+python train_net/train_o_net.py
 ```   
 4. Test Image
 ``` python

@@ -51,7 +51,7 @@ python test_image.py
 ```
 
 ## Results  
-Because I didn't use much data to train, so the detection results is not at the best.  
+Because I didn't use much data to train, the detection results is not at the best.  
 ![avatar](result.png)
 
 

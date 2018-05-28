@@ -20,7 +20,7 @@ This project is a reimplementation version of mtcnn face detection, most of the 
 5. to be continue.  
 
 ## How to use  
-For training PNet and RNet, I use the Widerface for face classification and face bounding box regression. For training ONet, I use Widerface for face classification and face bounding box regression and use [Training Dataset](http://mmlab.ie.cuhk.edu.hk/archive/CNN_FacePoint.htm) for face landmark regression.
+For training PNet and RNet, I only use the [Widerface](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) for face classification and face bounding box regression. For training ONet, I use [Widerface](http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/) for face classification and face bounding box regression and use [Training Dataset](http://mmlab.ie.cuhk.edu.hk/archive/CNN_FacePoint.htm) for face landmark regression.
 
 1. Train PNet  
 ``` python  
@@ -52,7 +52,10 @@ python test_image.py
 
 ## Results  
 Because I didn't use much data to train, the detection results is not at the best.  
-![avatar](result.png)
+![avatar](result.png)   
+
+## Problems  
+There still remains a problem to solve: When starting to train each stage network, the first batch will last for a long time about 30 minutes and I dont't know why.
 
 
 

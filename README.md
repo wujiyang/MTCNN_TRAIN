@@ -55,7 +55,7 @@ Because I didn't use much data to train, the detection results is not at the bes
 ![avatar](result.png)   
 
 ## Problems  
-There still remains a problem to solve: When starting to train each stage network, the first batch will last for a long time about 30 minutes and I dont't know why.
+There still remains a problem to solve: When starting to train each stage network, the first batch will last for a long time about 30 minutes and I don't know why.
 
 
 
